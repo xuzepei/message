@@ -23,7 +23,6 @@
 @property(nonatomic,strong)Item* selectedItem;
 
 
-
 - (IBAction)segmentedControlValueChanged:(id)sender;
 
 @end
