@@ -24,7 +24,6 @@
 
 
 
-
 - (IBAction)segmentedControlValueChanged:(id)sender;
 
 @end
