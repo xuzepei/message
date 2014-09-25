@@ -36,11 +36,11 @@
 {
     [super viewDidLoad];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(showAdBanner:) name:SHOW_ADBANNER_NOTIFICATION object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(showAdFullScreen:) name:SHOW_FULLSCREENAD_NOTIFICATION object:nil];
-    
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(clickedRightBarButtonItem:)];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(showAdBanner:) name:SHOW_ADBANNER_NOTIFICATION object:nil];
+//    
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(showAdFullScreen:) name:SHOW_FULLSCREENAD_NOTIFICATION object:nil];
+//    
+//    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(clickedRightBarButtonItem:)];
     
     
     if([RCTool systemVersion] >= 7.0)
@@ -124,7 +124,7 @@
 {
     if(0 == _type)
     {
-        NSString* urlString = [NSString stringWithFormat:@"%@&page=%d",@"http://joke.zaijiawan.com/Joke/joke2.jsp?appname=readingxiaonimei&version=3.11&os=ios&hardware=ipad&sort=1",page];
+        NSString* urlString = [NSString stringWithFormat:@"%@&page=%d",[RCTool getUrlByType:2],page];
         
         NSDictionary* token = @{@"type":[NSNumber numberWithInt:type],@"page":[NSNumber numberWithInt:page]};
         
@@ -162,155 +162,209 @@
         return;
     }
     
-    NSArray* array = [jsonString componentsSeparatedByString:@"<joke>"];
-    
     NSMutableArray* itemArray = [[NSMutableArray alloc] init];
-    for(NSString* item in array)
+    
+    NSDictionary* jsonResult = [RCTool parseToDictionary:[RCTool decrypt:jsonString]];
+    if(jsonResult && [jsonResult isKindOfClass:[NSDictionary class]])
     {
-        __strong NSString* temp = item;
-        
-        NSString* id = @"";
-        NSString* name = @"";
-        NSString* time = @"";
-        NSString* text = @"";
-        NSString* imgurl = @"";
-        NSString* forward = @"";
-        NSString* commend = @"";
-        NSString* videourl = @"";
-        
-        NSRange range = [temp rangeOfString:@"<id>"];
-        if(NSNotFound == range.location)
-            continue;
-        
-        temp = [temp substringFromIndex:range.location + range.length];
-        NSRange range1 = [temp rangeOfString:@"</id>"];
-        if(NSNotFound == range1.location)
-            continue;
-        id = [temp substringToIndex:range1.location];
-        
-        temp = [temp substringFromIndex:range1.location  + range1.length];
-        
-        ////////////////
-        range = [temp rangeOfString:@"<name>"];
-        if(NSNotFound == range.location)
-            continue;
-        
-        temp = [temp substringFromIndex:range.location + range.length];
-        range1 = [temp rangeOfString:@"</name>"];
-        if(NSNotFound == range1.location)
-            continue;
-        name = [temp substringToIndex:range1.location];
-        temp = [temp substringFromIndex:range1.location  + range1.length];
-        
-        ////////////////
-        range = [temp rangeOfString:@"<time>"];
-        if(NSNotFound == range.location)
-            continue;
-        
-        temp = [temp substringFromIndex:range.location + range.length];
-        range1 = [temp rangeOfString:@"</time>"];
-        if(NSNotFound == range1.location)
-            continue;
-        time = [temp substringToIndex:range1.location];
-        temp = [temp substringFromIndex:range1.location  + range1.length];
-        
-        
-        ////////////////
-        range = [temp rangeOfString:@"<text>"];
-        if(NSNotFound == range.location)
-            continue;
-        
-        temp = [temp substringFromIndex:range.location + range.length];
-        range1 = [temp rangeOfString:@"</text>"];
-        if(NSNotFound == range1.location)
-            continue;
-        text = [temp substringToIndex:range1.location];
-        temp = [temp substringFromIndex:range1.location  + range1.length];
-        
-        
-        ////////////////
-        range = [temp rangeOfString:@"<imgurl>"];
-        if(NSNotFound == range.location)
-            continue;
-        
-        temp = [temp substringFromIndex:range.location + range.length];
-        range1 = [temp rangeOfString:@"</imgurl>"];
-        if(NSNotFound == range1.location)
-            continue;
-        imgurl = [temp substringToIndex:range1.location];
-        temp = [temp substringFromIndex:range1.location  + range1.length];
-        
-        ////////////////
-        range = [temp rangeOfString:@"<forward>"];
-        if(NSNotFound == range.location)
-            continue;
-        
-        temp = [temp substringFromIndex:range.location + range.length];
-        range1 = [temp rangeOfString:@"</forward>"];
-        if(NSNotFound == range1.location)
-            continue;
-        forward = [temp substringToIndex:range1.location];
-        temp = [temp substringFromIndex:range1.location  + range1.length];
-        
-        ////////////////
-        range = [temp rangeOfString:@"<commend>"];
-        if(NSNotFound == range.location)
-            continue;
-        
-        temp = [temp substringFromIndex:range.location + range.length];
-        range1 = [temp rangeOfString:@"</commend>"];
-        if(NSNotFound == range1.location)
-            continue;
-        commend = [temp substringToIndex:range1.location];
-        temp = [temp substringFromIndex:range1.location  + range1.length];
-        
-        ////////////////
-        range = [temp rangeOfString:@"<videourl>"];
-        if(NSNotFound == range.location)
-            continue;
-        
-        temp = [temp substringFromIndex:range.location + range.length];
-        range1 = [temp rangeOfString:@"</videourl>"];
-        if(NSNotFound == range1.location)
-            continue;
-        videourl = [temp substringToIndex:range1.location];
-        //temp = [temp substringFromIndex:range1.location  + range1.length];
-        
-        if(0 == [id length])
-            continue;
-        
-        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"id = %@",id];
-        NSManagedObjectID* objectID = [RCTool getExistingEntityObjectIDForName: @"Item"
-                                                                     predicate: predicate
-                                                               sortDescriptors: nil
-                                                                       context: [RCTool getManagedObjectContext]];
-        
-        
-        Item* item = nil;
-        if(nil == objectID)
+        NSArray* array = [jsonResult objectForKey:@"list"];
+        for(NSDictionary* item in array)
         {
-            item = [RCTool insertEntityObjectForName:@"Item"
-                                managedObjectContext:[RCTool getManagedObjectContext]];
+            NSString* id = [item objectForKey:@"id"];
+            NSString* name = [item objectForKey:@"name"];
+            NSString* time = [item objectForKey:@"time"];
+            NSString* text = [item objectForKey:@"text"];
+            NSString* imgurl = [item objectForKey:@"imgurl"];
+            NSString* forward = [item objectForKey:@"forward"];
+            NSString* commend = [item objectForKey:@"commend"];
+            NSString* videourl = [item objectForKey:@"videourl"];
             
-            item.id = id;
+            if(0 == [id length])
+                continue;
+            
+            NSPredicate* predicate = [NSPredicate predicateWithFormat:@"id = %@",id];
+            NSManagedObjectID* objectID = [RCTool getExistingEntityObjectIDForName: @"Item"
+                                                                         predicate: predicate
+                                                                   sortDescriptors: nil
+                                                                           context: [RCTool getManagedObjectContext]];
+            
+            
+            Item* item = nil;
+            if(nil == objectID)
+            {
+                item = [RCTool insertEntityObjectForName:@"Item"
+                                    managedObjectContext:[RCTool getManagedObjectContext]];
+                
+                item.id = id;
+            }
+            else
+            {
+                item = (Item*)[RCTool insertEntityObjectForID:objectID
+                                         managedObjectContext:[RCTool getManagedObjectContext]];
+            }
+            
+            item.name = name;
+            item.time = time;
+            item.text = text;
+            item.imgurl = imgurl;
+            item.forward = forward;
+            item.commend = commend;
+            item.videourl = videourl;
+            
+            
+            [itemArray addObject:item];
         }
-        else
+    }
+    else
+    {
+        NSArray* array = [jsonString componentsSeparatedByString:@"<joke>"];
+        for(NSString* item in array)
         {
-            item = (Item*)[RCTool insertEntityObjectForID:objectID
-                                     managedObjectContext:[RCTool getManagedObjectContext]];
+            __strong NSString* temp = item;
+            
+            NSString* id = @"";
+            NSString* name = @"";
+            NSString* time = @"";
+            NSString* text = @"";
+            NSString* imgurl = @"";
+            NSString* forward = @"";
+            NSString* commend = @"";
+            NSString* videourl = @"";
+            
+            NSRange range = [temp rangeOfString:@"<id>"];
+            if(NSNotFound == range.location)
+                continue;
+            
+            temp = [temp substringFromIndex:range.location + range.length];
+            NSRange range1 = [temp rangeOfString:@"</id>"];
+            if(NSNotFound == range1.location)
+                continue;
+            id = [temp substringToIndex:range1.location];
+            
+            temp = [temp substringFromIndex:range1.location  + range1.length];
+            
+            ////////////////
+            range = [temp rangeOfString:@"<name>"];
+            if(NSNotFound == range.location)
+                continue;
+            
+            temp = [temp substringFromIndex:range.location + range.length];
+            range1 = [temp rangeOfString:@"</name>"];
+            if(NSNotFound == range1.location)
+                continue;
+            name = [temp substringToIndex:range1.location];
+            temp = [temp substringFromIndex:range1.location  + range1.length];
+            
+            ////////////////
+            range = [temp rangeOfString:@"<time>"];
+            if(NSNotFound == range.location)
+                continue;
+            
+            temp = [temp substringFromIndex:range.location + range.length];
+            range1 = [temp rangeOfString:@"</time>"];
+            if(NSNotFound == range1.location)
+                continue;
+            time = [temp substringToIndex:range1.location];
+            temp = [temp substringFromIndex:range1.location  + range1.length];
+            
+            
+            ////////////////
+            range = [temp rangeOfString:@"<text>"];
+            if(NSNotFound == range.location)
+                continue;
+            
+            temp = [temp substringFromIndex:range.location + range.length];
+            range1 = [temp rangeOfString:@"</text>"];
+            if(NSNotFound == range1.location)
+                continue;
+            text = [temp substringToIndex:range1.location];
+            temp = [temp substringFromIndex:range1.location  + range1.length];
+            
+            
+            ////////////////
+            range = [temp rangeOfString:@"<imgurl>"];
+            if(NSNotFound == range.location)
+                continue;
+            
+            temp = [temp substringFromIndex:range.location + range.length];
+            range1 = [temp rangeOfString:@"</imgurl>"];
+            if(NSNotFound == range1.location)
+                continue;
+            imgurl = [temp substringToIndex:range1.location];
+            temp = [temp substringFromIndex:range1.location  + range1.length];
+            
+            ////////////////
+            range = [temp rangeOfString:@"<forward>"];
+            if(NSNotFound == range.location)
+                continue;
+            
+            temp = [temp substringFromIndex:range.location + range.length];
+            range1 = [temp rangeOfString:@"</forward>"];
+            if(NSNotFound == range1.location)
+                continue;
+            forward = [temp substringToIndex:range1.location];
+            temp = [temp substringFromIndex:range1.location  + range1.length];
+            
+            ////////////////
+            range = [temp rangeOfString:@"<commend>"];
+            if(NSNotFound == range.location)
+                continue;
+            
+            temp = [temp substringFromIndex:range.location + range.length];
+            range1 = [temp rangeOfString:@"</commend>"];
+            if(NSNotFound == range1.location)
+                continue;
+            commend = [temp substringToIndex:range1.location];
+            temp = [temp substringFromIndex:range1.location  + range1.length];
+            
+            ////////////////
+            range = [temp rangeOfString:@"<videourl>"];
+            if(NSNotFound == range.location)
+                continue;
+            
+            temp = [temp substringFromIndex:range.location + range.length];
+            range1 = [temp rangeOfString:@"</videourl>"];
+            if(NSNotFound == range1.location)
+                continue;
+            videourl = [temp substringToIndex:range1.location];
+            //temp = [temp substringFromIndex:range1.location  + range1.length];
+            
+            if(0 == [id length])
+                continue;
+            
+            NSPredicate* predicate = [NSPredicate predicateWithFormat:@"id = %@",id];
+            NSManagedObjectID* objectID = [RCTool getExistingEntityObjectIDForName: @"Item"
+                                                                         predicate: predicate
+                                                                   sortDescriptors: nil
+                                                                           context: [RCTool getManagedObjectContext]];
+            
+            
+            Item* item = nil;
+            if(nil == objectID)
+            {
+                item = [RCTool insertEntityObjectForName:@"Item"
+                                    managedObjectContext:[RCTool getManagedObjectContext]];
+                
+                item.id = id;
+            }
+            else
+            {
+                item = (Item*)[RCTool insertEntityObjectForID:objectID
+                                         managedObjectContext:[RCTool getManagedObjectContext]];
+            }
+            
+            item.name = name;
+            item.time = time;
+            item.text = text;
+            item.imgurl = imgurl;
+            item.forward = forward;
+            item.commend = commend;
+            item.videourl = videourl;
+            
+            
+            [itemArray addObject:item];
+            
         }
-        
-        item.name = name;
-        item.time = time;
-        item.text = text;
-        item.imgurl = imgurl;
-        item.forward = forward;
-        item.commend = commend;
-        item.videourl = videourl;
-        
-        
-        [itemArray addObject:item];
-        
     }
     
     
@@ -340,7 +394,7 @@
             //tryno = 0;
         if(0 == [timestamp length])
             timestamp = @"0";
-        NSString* urlString = [NSString stringWithFormat:@"%@&page=%d&timestamp=%@&tryno=%d",@"http://joke.zaijiawan.com/Joke/joke2_random.jsp?appname=readingxiaonimei&version=3.11&os=ios&hardware=ipad&sort=1",page,timestamp,tryno];
+        NSString* urlString = [NSString stringWithFormat:@"%@&page=%d&timestamp=%@&tryno=%d",[RCTool getUrlByType:3],page,timestamp,tryno];
         
         NSDictionary* token = @{@"type":[NSNumber numberWithInt:type],@"page":[NSNumber numberWithInt:page]};
         
@@ -380,155 +434,209 @@
         return;
     }
     
-    NSArray* array = [jsonString componentsSeparatedByString:@"<joke>"];
-    
     NSMutableArray* itemArray = [[NSMutableArray alloc] init];
-    for(NSString* item in array)
+    
+    NSDictionary* jsonResult = [RCTool parseToDictionary:[RCTool decrypt:jsonString]];
+    if(jsonResult && [jsonResult isKindOfClass:[NSDictionary class]])
     {
-        __strong NSString* temp = item;
-        
-        NSString* id = @"";
-        NSString* name = @"";
-        NSString* time = @"";
-        NSString* text = @"";
-        NSString* imgurl = @"";
-        NSString* forward = @"";
-        NSString* commend = @"";
-        NSString* videourl = @"";
-        
-        NSRange range = [temp rangeOfString:@"<id>"];
-        if(NSNotFound == range.location)
-            continue;
-        
-        temp = [temp substringFromIndex:range.location + range.length];
-        NSRange range1 = [temp rangeOfString:@"</id>"];
-        if(NSNotFound == range1.location)
-            continue;
-        id = [temp substringToIndex:range1.location];
-        
-        temp = [temp substringFromIndex:range1.location  + range1.length];
-        
-        ////////////////
-        range = [temp rangeOfString:@"<name>"];
-        if(NSNotFound == range.location)
-            continue;
-        
-        temp = [temp substringFromIndex:range.location + range.length];
-        range1 = [temp rangeOfString:@"</name>"];
-        if(NSNotFound == range1.location)
-            continue;
-        name = [temp substringToIndex:range1.location];
-        temp = [temp substringFromIndex:range1.location  + range1.length];
-        
-        ////////////////
-        range = [temp rangeOfString:@"<time>"];
-        if(NSNotFound == range.location)
-            continue;
-        
-        temp = [temp substringFromIndex:range.location + range.length];
-        range1 = [temp rangeOfString:@"</time>"];
-        if(NSNotFound == range1.location)
-            continue;
-        time = [temp substringToIndex:range1.location];
-        temp = [temp substringFromIndex:range1.location  + range1.length];
-        
-        
-        ////////////////
-        range = [temp rangeOfString:@"<text>"];
-        if(NSNotFound == range.location)
-            continue;
-        
-        temp = [temp substringFromIndex:range.location + range.length];
-        range1 = [temp rangeOfString:@"</text>"];
-        if(NSNotFound == range1.location)
-            continue;
-        text = [temp substringToIndex:range1.location];
-        temp = [temp substringFromIndex:range1.location  + range1.length];
-        
-        
-        ////////////////
-        range = [temp rangeOfString:@"<imgurl>"];
-        if(NSNotFound == range.location)
-            continue;
-        
-        temp = [temp substringFromIndex:range.location + range.length];
-        range1 = [temp rangeOfString:@"</imgurl>"];
-        if(NSNotFound == range1.location)
-            continue;
-        imgurl = [temp substringToIndex:range1.location];
-        temp = [temp substringFromIndex:range1.location  + range1.length];
-        
-        ////////////////
-        range = [temp rangeOfString:@"<forward>"];
-        if(NSNotFound == range.location)
-            continue;
-        
-        temp = [temp substringFromIndex:range.location + range.length];
-        range1 = [temp rangeOfString:@"</forward>"];
-        if(NSNotFound == range1.location)
-            continue;
-        forward = [temp substringToIndex:range1.location];
-        temp = [temp substringFromIndex:range1.location  + range1.length];
-        
-        ////////////////
-        range = [temp rangeOfString:@"<commend>"];
-        if(NSNotFound == range.location)
-            continue;
-        
-        temp = [temp substringFromIndex:range.location + range.length];
-        range1 = [temp rangeOfString:@"</commend>"];
-        if(NSNotFound == range1.location)
-            continue;
-        commend = [temp substringToIndex:range1.location];
-        temp = [temp substringFromIndex:range1.location  + range1.length];
-        
-        ////////////////
-        range = [temp rangeOfString:@"<videourl>"];
-        if(NSNotFound == range.location)
-            continue;
-        
-        temp = [temp substringFromIndex:range.location + range.length];
-        range1 = [temp rangeOfString:@"</videourl>"];
-        if(NSNotFound == range1.location)
-            continue;
-        videourl = [temp substringToIndex:range1.location];
-        //temp = [temp substringFromIndex:range1.location  + range1.length];
-        
-        if(0 == [id length])
-            continue;
-        
-        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"id = %@",id];
-        NSManagedObjectID* objectID = [RCTool getExistingEntityObjectIDForName: @"Item"
-                                                                     predicate: predicate
-                                                               sortDescriptors: nil
-                                                                       context: [RCTool getManagedObjectContext]];
-        
-        
-        Item* item = nil;
-        if(nil == objectID)
+        NSArray* array = [jsonResult objectForKey:@"list"];
+        for(NSDictionary* item in array)
         {
-            item = [RCTool insertEntityObjectForName:@"Item"
-                                managedObjectContext:[RCTool getManagedObjectContext]];
+            NSString* id = [item objectForKey:@"id"];
+            NSString* name = [item objectForKey:@"name"];
+            NSString* time = [item objectForKey:@"time"];
+            NSString* text = [item objectForKey:@"text"];
+            NSString* imgurl = [item objectForKey:@"imgurl"];
+            NSString* forward = [item objectForKey:@"forward"];
+            NSString* commend = [item objectForKey:@"commend"];
+            NSString* videourl = [item objectForKey:@"videourl"];
             
-            item.id = id;
+            if(0 == [id length])
+                continue;
+            
+            NSPredicate* predicate = [NSPredicate predicateWithFormat:@"id = %@",id];
+            NSManagedObjectID* objectID = [RCTool getExistingEntityObjectIDForName: @"Item"
+                                                                         predicate: predicate
+                                                                   sortDescriptors: nil
+                                                                           context: [RCTool getManagedObjectContext]];
+            
+            
+            Item* item = nil;
+            if(nil == objectID)
+            {
+                item = [RCTool insertEntityObjectForName:@"Item"
+                                    managedObjectContext:[RCTool getManagedObjectContext]];
+                
+                item.id = id;
+            }
+            else
+            {
+                item = (Item*)[RCTool insertEntityObjectForID:objectID
+                                         managedObjectContext:[RCTool getManagedObjectContext]];
+            }
+            
+            item.name = name;
+            item.time = time;
+            item.text = text;
+            item.imgurl = imgurl;
+            item.forward = forward;
+            item.commend = commend;
+            item.videourl = videourl;
+            
+            
+            [itemArray addObject:item];
         }
-        else
+    }
+    else
+    {
+        NSArray* array = [jsonString componentsSeparatedByString:@"<joke>"];
+        for(NSString* item in array)
         {
-            item = (Item*)[RCTool insertEntityObjectForID:objectID
-                                     managedObjectContext:[RCTool getManagedObjectContext]];
+            __strong NSString* temp = item;
+            
+            NSString* id = @"";
+            NSString* name = @"";
+            NSString* time = @"";
+            NSString* text = @"";
+            NSString* imgurl = @"";
+            NSString* forward = @"";
+            NSString* commend = @"";
+            NSString* videourl = @"";
+            
+            NSRange range = [temp rangeOfString:@"<id>"];
+            if(NSNotFound == range.location)
+                continue;
+            
+            temp = [temp substringFromIndex:range.location + range.length];
+            NSRange range1 = [temp rangeOfString:@"</id>"];
+            if(NSNotFound == range1.location)
+                continue;
+            id = [temp substringToIndex:range1.location];
+            
+            temp = [temp substringFromIndex:range1.location  + range1.length];
+            
+            ////////////////
+            range = [temp rangeOfString:@"<name>"];
+            if(NSNotFound == range.location)
+                continue;
+            
+            temp = [temp substringFromIndex:range.location + range.length];
+            range1 = [temp rangeOfString:@"</name>"];
+            if(NSNotFound == range1.location)
+                continue;
+            name = [temp substringToIndex:range1.location];
+            temp = [temp substringFromIndex:range1.location  + range1.length];
+            
+            ////////////////
+            range = [temp rangeOfString:@"<time>"];
+            if(NSNotFound == range.location)
+                continue;
+            
+            temp = [temp substringFromIndex:range.location + range.length];
+            range1 = [temp rangeOfString:@"</time>"];
+            if(NSNotFound == range1.location)
+                continue;
+            time = [temp substringToIndex:range1.location];
+            temp = [temp substringFromIndex:range1.location  + range1.length];
+            
+            
+            ////////////////
+            range = [temp rangeOfString:@"<text>"];
+            if(NSNotFound == range.location)
+                continue;
+            
+            temp = [temp substringFromIndex:range.location + range.length];
+            range1 = [temp rangeOfString:@"</text>"];
+            if(NSNotFound == range1.location)
+                continue;
+            text = [temp substringToIndex:range1.location];
+            temp = [temp substringFromIndex:range1.location  + range1.length];
+            
+            
+            ////////////////
+            range = [temp rangeOfString:@"<imgurl>"];
+            if(NSNotFound == range.location)
+                continue;
+            
+            temp = [temp substringFromIndex:range.location + range.length];
+            range1 = [temp rangeOfString:@"</imgurl>"];
+            if(NSNotFound == range1.location)
+                continue;
+            imgurl = [temp substringToIndex:range1.location];
+            temp = [temp substringFromIndex:range1.location  + range1.length];
+            
+            ////////////////
+            range = [temp rangeOfString:@"<forward>"];
+            if(NSNotFound == range.location)
+                continue;
+            
+            temp = [temp substringFromIndex:range.location + range.length];
+            range1 = [temp rangeOfString:@"</forward>"];
+            if(NSNotFound == range1.location)
+                continue;
+            forward = [temp substringToIndex:range1.location];
+            temp = [temp substringFromIndex:range1.location  + range1.length];
+            
+            ////////////////
+            range = [temp rangeOfString:@"<commend>"];
+            if(NSNotFound == range.location)
+                continue;
+            
+            temp = [temp substringFromIndex:range.location + range.length];
+            range1 = [temp rangeOfString:@"</commend>"];
+            if(NSNotFound == range1.location)
+                continue;
+            commend = [temp substringToIndex:range1.location];
+            temp = [temp substringFromIndex:range1.location  + range1.length];
+            
+            ////////////////
+            range = [temp rangeOfString:@"<videourl>"];
+            if(NSNotFound == range.location)
+                continue;
+            
+            temp = [temp substringFromIndex:range.location + range.length];
+            range1 = [temp rangeOfString:@"</videourl>"];
+            if(NSNotFound == range1.location)
+                continue;
+            videourl = [temp substringToIndex:range1.location];
+            //temp = [temp substringFromIndex:range1.location  + range1.length];
+            
+            if(0 == [id length])
+                continue;
+            
+            NSPredicate* predicate = [NSPredicate predicateWithFormat:@"id = %@",id];
+            NSManagedObjectID* objectID = [RCTool getExistingEntityObjectIDForName: @"Item"
+                                                                         predicate: predicate
+                                                                   sortDescriptors: nil
+                                                                           context: [RCTool getManagedObjectContext]];
+            
+            
+            Item* item = nil;
+            if(nil == objectID)
+            {
+                item = [RCTool insertEntityObjectForName:@"Item"
+                                    managedObjectContext:[RCTool getManagedObjectContext]];
+                
+                item.id = id;
+            }
+            else
+            {
+                item = (Item*)[RCTool insertEntityObjectForID:objectID
+                                         managedObjectContext:[RCTool getManagedObjectContext]];
+            }
+            
+            item.name = name;
+            item.time = time;
+            item.text = text;
+            item.imgurl = imgurl;
+            item.forward = forward;
+            item.commend = commend;
+            item.videourl = videourl;
+            
+            
+            [itemArray addObject:item];
+            
         }
-        
-        item.name = name;
-        item.time = time;
-        item.text = text;
-        item.imgurl = imgurl;
-        item.forward = forward;
-        item.commend = commend;
-        item.videourl = videourl;
-        
-        
-        [itemArray addObject:item];
-        
     }
     
     

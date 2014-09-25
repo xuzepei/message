@@ -77,5 +77,6 @@
 + (NSString*)getTextById:(NSString*)textId;
 + (NSArray*)getOtherApps;
 + (NSDictionary*)getAlert;
++ (NSString*)getUrlByType:(int)type;
 
 @end

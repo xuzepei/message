@@ -25,18 +25,18 @@
     
     if([RCTool systemVersion] >= 7.0)
     {
-        [[UITabBarItem appearance] setTitleTextAttributes:@{NSForegroundColorAttributeName:[UIColor blackColor]} forState:UIControlStateSelected];
+        //[[UITabBarItem appearance] setTitleTextAttributes:@{NSForegroundColorAttributeName:[UIColor blackColor]} forState:UIControlStateSelected];
         
-        [[UITabBarItem appearance] setTitleTextAttributes:@{NSForegroundColorAttributeName:[UIColor blackColor]} forState:UIControlStateNormal];
+        //[[UITabBarItem appearance] setTitleTextAttributes:@{NSForegroundColorAttributeName:[UIColor blackColor]} forState:UIControlStateNormal];
         
-        //[[UITabBar appearance] setTintColor:[UIColor redColor]];
-        [[UITabBar appearance] setBarTintColor:[RCTool colorWithHex:0x40cbf7]];
+        //[[UITabBar appearance] setTintColor:TINT_COLOR];
+        [[UITabBar appearance] setBarTintColor:[UIColor blackColor]];
         //[[UITabBar appearance] setBarTintColor:[UIColor blackColor]];
-        [[UINavigationBar appearance] setBarTintColor:[UIColor whiteColor]];
+        //[[UINavigationBar appearance] setBarTintColor:[UIColor whiteColor]];
         
         [[UINavigationBar appearance] setTitleTextAttributes:@{NSForegroundColorAttributeName:TINT_COLOR}];
         
-        [[UITabBar appearance] setSelectedImageTintColor:[UIColor whiteColor]];
+        //[[UITabBar appearance] setSelectedImageTintColor:[UIColor whiteColor]];
     }
     
     [UMSocialData setAppKey:UMENG_KEY];
@@ -229,6 +229,102 @@
     
 }
 
+#pragma mark - BaiduAD_Banner
+
+- (void)initBaiduAd
+{
+    if(nil == _adView)
+    {
+        _adView = [[BaiduMobAdView alloc] init];
+        _adView.AdType = BaiduMobAdViewTypeBanner;
+        
+        if(NO == [RCTool isIpad])
+        {
+            _adView.frame = CGRectMake(0.0,0,
+                                       kGADAdSizeBanner.size.width,
+                                       kGADAdSizeBanner.size.height);
+        }
+        else
+        {
+            _adView.frame = CGRectMake(0.0,0,
+                                       kGADAdSizeLeaderboard.size.width,
+                                       kGADAdSizeLeaderboard.size.height);
+        }
+        
+        _adView.delegate = self;
+        
+        [_adView start];
+    }
+}
+
+#pragma mark - BaiduAD_Interstitial
+
+- (void)getBaiduAdInterstitial
+{
+    if(nil == _interstitial)
+    {
+        _interstitial = [[BaiduMobAdInterstitial alloc] init];
+        _interstitial.delegate = self;
+    }
+    
+    [_interstitial load];
+}
+
+- (void)interstitialSuccessToLoadAd:(BaiduMobAdInterstitial *)interstitial
+{
+    NSLog(@"interstitialSuccessToLoadAd");
+    
+    if(self.showFullScreenAd)
+    {
+        self.showFullScreenAd = NO;
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:SHOW_FULLSCREENAD_NOTIFICATION object:nil userInfo:nil];
+    }
+}
+
+- (void)interstitialFailToLoadAd:(BaiduMobAdInterstitial *)interstitial
+{
+    NSLog(@"interstitialSuccessToLoadAd");
+}
+
+- (void)interstitialDidDismissScreen:(BaiduMobAdInterstitial *)interstitial
+{
+    self.interstitial = nil;
+    [self getBaiduAdInterstitial];
+}
+
+- (NSString *)publisherId
+{
+    return [RCTool getAdId];
+}
+
+- (NSString*) appSpec
+{
+    return [RCTool getAdId];
+}
+
+- (void) willDisplayAd:(BaiduMobAdView*) adview;
+{
+    NSLog(@"willDisplayAd");
+    
+    CGRect rect = adview.frame;
+    rect.origin.x = ([RCTool getScreenSize].width - rect.size.width)/2.0;
+    //rect.origin.y = [RCTool getScreenSize].height - _adMobAd.bounds.size.height - TAB_BAR_HEIGHT;
+    adview.frame = rect;
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:SHOW_ADBANNER_NOTIFICATION object:nil userInfo:nil];
+}
+
+
+-(void) failedDisplayAd:(BaiduMobFailReason) reason
+{
+    NSLog(@"failedDisplayAd");
+}
+
+
+
+#pragma mark - AdMob
+
 - (void)initAdMob
 {
     if(_adMobAd && _adMobAd.alpha == 0.0 && nil == _adMobAd.superview)
@@ -242,15 +338,15 @@
 	{
 		_adMobAd = [[GADBannerView alloc]
                     initWithFrame:CGRectMake(0.0,0,
-                                             320.0f,
-                                             50.0f)];
+                                             kGADAdSizeBanner.size.width,
+                                             kGADAdSizeBanner.size.height)];
 	}
 	else
 	{
         _adMobAd = [[GADBannerView alloc]
                     initWithFrame:CGRectMake(0.0,0,
-                                             728.0f,
-                                             90.0f)];
+                                             kGADAdSizeLeaderboard.size.width,
+                                             kGADAdSizeLeaderboard.size.height)];
 	}
     
 	
@@ -282,9 +378,13 @@
     self.adInterstitial = nil;
     self.interstitial = nil;
 	
-	[self initAdMob];
+//	[self initAdMob];
+//    
+//    [self getAdInterstitial];
     
-    [self getAdInterstitial];
+    [self initBaiduAd];
+    
+    [self getBaiduAdInterstitial];
 }
 
 #pragma mark -
@@ -354,11 +454,11 @@ didFailToReceiveAdWithError:(GADRequestError *)error
     [self performSelector:@selector(getAdInterstitial) withObject:nil afterDelay:10];
 }
 
-- (void)interstitialDidDismissScreen:(GADInterstitial *)ad
-{
-    _adInterstitial = nil;
-    [self getAdInterstitial];
-}
+//- (void)interstitialDidDismissScreen:(GADInterstitial *)ad
+//{
+//    _adInterstitial = nil;
+//    [self getAdInterstitial];
+//}
 
 - (void)showInterstitialAd:(UIViewController*)rootViewController
 {
@@ -366,9 +466,9 @@ didFailToReceiveAdWithError:(GADRequestError *)error
     {
         [_adInterstitial presentFromRootViewController:rootViewController];
     }
-    else if(self.interstitial && self.interstitial.loaded)
+    else if(self.interstitial && self.interstitial.isReady)
     {
-        [self.interstitial presentFromViewController:rootViewController];
+        [self.interstitial presentFromRootViewController:rootViewController];
     }
 }
 
@@ -427,6 +527,20 @@ didFailToReceiveAdWithError:(GADRequestError *)error
     NSDictionary* alert = [RCTool getAlert];
     if(alert)
     {
+        NSString* id = [alert objectForKey:@"id"];
+        if([id length])
+        {
+            NSString* record = [[NSUserDefaults standardUserDefaults] objectForKey:[NSString stringWithFormat:@"alert_%@",id]];
+            
+            if([record length])
+                return;
+            else
+            {
+                [[NSUserDefaults standardUserDefaults] setObject:@"1" forKey:[NSString stringWithFormat:@"alert_%@",id]];
+                [[NSUserDefaults standardUserDefaults] synchronize];
+            }
+        }
+        
         int type = [[alert objectForKey:@"type"] intValue];
         NSString* title = [alert objectForKey:@"title"];
         NSString* message = [alert objectForKey:@"message"];

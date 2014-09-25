@@ -8,7 +8,6 @@
 
 #import "RCMoreTableViewController.h"
 #import "RCHttpRequest.h"
-#import "UMFeedback.h"
 #import "RCImageLoader.h"
 #import <QuartzCore/QuartzCore.h>
 
@@ -44,8 +43,12 @@
     [_itemArray removeAllObjects];
     
     NSArray* otherApps = [RCTool getOtherApps];
-    if([otherApps count])
-        [_itemArray addObjectsFromArray:otherApps];
+    if(otherApps && [otherApps isKindOfClass:[NSArray class]])
+    {
+        if([otherApps count])
+            [_itemArray addObjectsFromArray:otherApps];
+    }
+
     
     [self.tableView reloadData];
 }
@@ -73,7 +76,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     if(0 == section)
-        return 3;
+        return 2;
     else if(1 == section)
         return [self.itemArray count];
     
@@ -206,7 +209,7 @@
 
 - (void)feedback
 {
-    [UMFeedback showFeedback:self withAppkey:UMENG_KEY];
+    //[UMFeedback showFeedback:self withAppkey:UMENG_KEY];
 }
 
 - (void)succeedLoad:(id)result token:(id)token

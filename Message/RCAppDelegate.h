@@ -10,8 +10,10 @@
 #import "GADBannerView.h"
 #import "GADInterstitial.h"
 #import <iAd/iAd.h>
+#import "BaiduMobAdView.h"
+#import "BaiduMobAdInterstitial.h"
 
-@interface RCAppDelegate : UIResponder <UIApplicationDelegate,GADBannerViewDelegate,GADInterstitialDelegate,UIAlertViewDelegate>
+@interface RCAppDelegate : UIResponder <UIApplicationDelegate,GADBannerViewDelegate,GADInterstitialDelegate,UIAlertViewDelegate,BaiduMobAdInterstitialDelegate,BaiduMobAdViewDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 
@@ -23,9 +25,9 @@
 @property (assign)BOOL isAdMobVisible;
 @property (nonatomic, strong) GADInterstitial *adInterstitial;
 
-@property (nonatomic, strong) ADBannerView *adView;
+@property (nonatomic, strong) BaiduMobAdView *adView;
 @property (assign)BOOL isAdViewVisible;
-@property (nonatomic, strong) ADInterstitialAd* interstitial;
+@property (nonatomic, strong) BaiduMobAdInterstitial* interstitial;
 
 @property (nonatomic,strong) NSString* ad_id;
 @property (nonatomic,assign)BOOL showFullScreenAd;

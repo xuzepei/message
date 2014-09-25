@@ -36,28 +36,26 @@
 #define NAVIGATION_BAR_HEIGHT 44.0
 #define TAB_BAR_HEIGHT 50.0
 
-#define PICKER_VIEW_HEIGHT 256.0
+#define UMENG_KEY @"541fc25efd98c518e807281a"
 
-#define VERSION @"1.0"
-
-
-#define BASE_URL @"http://demo.by111.com/demo_fang2/Api"
-
-#define UMENG_KEY @"53e1c69ffd98c5aae3003734"
-
-
-#define APP_URL @"http://itunes.apple.com/app/909222174"
+#define APP_URL @"https://itunes.apple.com/app/id481516598?mt=8"
 
 //广告ID
-#define AD_ID @"ca-app-pub-1207330468801232/4111993583"
-#define SCREEN_AD_ID @"ca-app-pub-1207330468801232/5588726789"
+#define AD_ID @"1004239d"
+#define SCREEN_AD_ID @"ca-app-pub-4277345388713579/8832935246"
 #define SCREEN_AD_RATE 5
 
 //获取协同信息URL
-#define APP_INFO_URL @"http://www.tapguilt.com/api/message.php"
+#define APP_INFO_URL @"http://www.tapguilt.com/api/girltest.php"
+
+//URL
+#define URL_0 @"http://joke.zaijiawan.com/Joke/joke2.jsp?appname=readingxiaonimei&version=3.11&os=ios&hardware=ipad&sort=0"
+#define URL_1 @"http://joke.zaijiawan.com/Joke/joke2_random.jsp?appname=readingxiaonimei&version=3.11&os=ios&hardware=ipad&sort=0"
+#define URL_2 @"http://joke.zaijiawan.com/Joke/joke2.jsp?appname=readingxiaonimei&version=3.11&os=ios&hardware=ipad&sort=1"
+#define URL_3 @"http://joke.zaijiawan.com/Joke/joke2_random.jsp?appname=readingxiaonimei&version=3.11&os=ios&hardware=ipad&sort=1"
 
 //密钥
-#define SECRET_KEY @"20140808"
+#define SECRET_KEY @"20140922"
 
 #define SHOW_ADBANNER_NOTIFICATION @"SHOW_ADBANNER_NOTIFICATION"
 
@@ -76,4 +74,7 @@ typedef enum
     TI_6,
     TI_7,
 }TextId;
+
+#define LAST_INDEX 18
+#define BUTTON_FRAME_COLOR [UIColor colorWithRed:1.00 green:0.91 blue:0.03 alpha:1.00]
 

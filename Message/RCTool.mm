@@ -595,9 +595,9 @@
 {
 	RCAppDelegate* appDelegate = (RCAppDelegate*)[[UIApplication sharedApplication] delegate];
     
-    if(appDelegate.adMobAd.alpha)
+    if(appDelegate.adView)
     {
-        UIView* adView = appDelegate.adMobAd;
+        UIView* adView = appDelegate.adView;
         if(adView)
             return adView;
     }
@@ -773,6 +773,58 @@
     }
     
     return nil;
+}
+
++ (NSString*)getUrlByType:(int)type
+{
+    NSDictionary* app_info = [[NSUserDefaults standardUserDefaults] objectForKey:@"app_info"];
+    
+    if(0 == type)
+    {
+        if(app_info && [app_info isKindOfClass:[NSDictionary class]])
+        {
+            NSString* url = [app_info objectForKey:@"url_0"];
+            if([url length])
+                return url;
+        }
+            
+        return URL_0;
+    }
+    else if(1 == type)
+    {
+        if(app_info && [app_info isKindOfClass:[NSDictionary class]])
+        {
+            NSString* url = [app_info objectForKey:@"url_1"];
+            if([url length])
+                return url;
+        }
+        
+        return URL_1;
+    }
+    else if(2 == type)
+    {
+        if(app_info && [app_info isKindOfClass:[NSDictionary class]])
+        {
+            NSString* url = [app_info objectForKey:@"url_2"];
+            if([url length])
+                return url;
+        }
+        
+        return URL_2;
+    }
+    else if(3 == type)
+    {
+        if(app_info && [app_info isKindOfClass:[NSDictionary class]])
+        {
+            NSString* url = [app_info objectForKey:@"url_3"];
+            if([url length])
+                return url;
+        }
+        
+        return URL_3;
+    }
+    
+    return @"";
 }
 
 

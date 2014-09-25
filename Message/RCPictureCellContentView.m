@@ -120,7 +120,18 @@
     if(self.image)
     {
         NSString* imagePath = [RCTool getImageLocalPath:self.imageUrl];
-
+        if(0 == [imagePath length])
+        {
+            if([RCTool isIpad])
+            {
+                imagePath = [[NSBundle mainBundle] pathForResource:@"loading_white_pad" ofType:@"gif"];
+            }
+            else
+            {
+                imagePath = [[NSBundle mainBundle] pathForResource:@"loading_white" ofType:@"gif"];
+            }
+        }
+        
         if([imagePath hasSuffix:@".gif"] || [imagePath hasSuffix:@".GIF"])
         {
             CGSize size = [self getFitImageSize:self.image.size];
@@ -134,6 +145,7 @@
         }
         else
         {
+            
             CGSize size = [self getFitImageSize:self.image.size];
             CGRect tempRect = CGRectMake(([RCTool getScreenSize].width - size.width)/2.0, offset_y, size.width, size.height);
             if([self.videoUrl length])
@@ -155,8 +167,9 @@
                 }
             }
         }
-
+        
     }
+    
     
     [LINE_COLOR set];
     CGRect lineRect = CGRectMake(offset_width, self.bounds.size.height - button_height - offset_height, [RCTool getScreenSize].width - offset_width*2, 1);
@@ -215,7 +228,24 @@
     
     self.image = nil;
     self.imageUrl = item0.imgurl;
-
+    
+    //设置默认图片
+    if([self.imageUrl length])
+    {
+        NSString* imagePath = nil;
+        if([RCTool isIpad])
+        {
+            imagePath = [[NSBundle mainBundle] pathForResource:@"loading_white_pad" ofType:@"gif"];
+        }
+        else
+        {
+            imagePath = [[NSBundle mainBundle] pathForResource:@"loading_white_pad" ofType:@"gif"];
+        }
+        
+        self.image = [UIImage imageWithContentsOfFile:imagePath
+                      ];
+    }
+    
     if([self.imageUrl length])
     {
         UIImage* image = [RCTool getImageFromLocal:self.imageUrl];
